@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<head>
+    <title>Employee Salary Form</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="http://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Employee Salary Form</h2>
+        <form id="employeeForm">
+            <div class="form-group">
+                <label for="eId">Employee ID:</label>
+                <input type="text" class="form-control" id="eId" placeholder="Enter Employee ID"
+                       onchange="checkEmployee();">
+            </div>
+            <div class="form-group">
+                <label for="eName">Employee Name:</label>
+                <input type="text" class="form-control" id="eName" placeholder="Enter Employee Name">
+            </div>
+            <div class="form-group">
+                <label for="eSalary">Basic Salary:</label>
+                <input type="number" class="form-control" id="eSalary" placeholder="Enter Basic Salary">
+            </div>
+            <div class="form-group">
+                <label for="eHra">HRA:</label>
+                <input type="number" class="form-control" id="eHra" placeholder="Enter HRA">
+            </div>
+            <div class="form-group">
+                <label for="eDa">DA:</label>
+                <input type="number" class="form-control" id="eDa" placeholder="Enter DA">
+            </div>
+            <div class="form-group">
+                <label for="eDeduction">Deduction:</label>
+                <input type="number" class="form-control" id="eDeduction" placeholder="Enter Deduction">
+            </div>
+ 
+            <input type="button" class="btn btn-primary" id="btnSave" value="Save" onclick="saveEmployee();">
+            <input type="button" class="btn btn-warning" id="btnChange" value="Change" onclick="changeEmployee();">
+            <input type="button" class="btn btn-default" id="btnReset" value="Reset" onclick="initForm();">
+        </form>
+    </div>
+ 
+    <script>
+        var jpdbBaseURL = "http://api.login2explore.com:5577";
+        var jpdbIRL = "/api/irl";  
+        var jpdbIML = "/api/iml";   
+        var empDBName = "EMP-DB";
+        var empRelName = "EmpData";
+        var connToken = "90933410|-31949151356139044|90904440";
+ 
+        function initForm() {
+            localStorage.removeItem("recno");
+            $("#employeeForm")[0].reset();
+            $("#eId").prop("disabled", false);
+            $("#eName, #eSalary, #eHra, #eDa, #eDeduction").prop("disabled", true);
+            $("#btnSave, #btnChange, #btnReset").prop("disabled", true);
+            $("#eId").focus();
+        }
+ 
+        function saveRecNo2LS(jsonObj) {
+            var lvData = JSON.parse(jsonObj.data);
+            localStorage.setItem("recno", lvData.rec_no);
+        }
+
+        function fillData(jsonObj) {
+            saveRecNo2LS(jsonObj);
+            var record = JSON.parse(jsonObj.data).record;
+            $("#eName").val(record.name);
+            $("#eSalary").val(record.salary);
+            $("#eHra").val(record.hra);
+            $("#eDa").val(record.da);
+            $("#eDeduction").val(record.deduction);
+        }
+
+        function validateAndGetFormData() {
+            var fields = [
+                { id: "eId", label: "Employee ID", key: "id" },
+                { id: "eName", label: "Employee Name", key: "name" },
+                { id: "eSalary", label: "Basic Salary", key: "salary" },
+                { id: "eHra", label: "HRA", key: "hra" },
+                { id: "eDa", label: "DA", key: "da" },
+                { id: "eDeduction", label: "Deduction", key: "deduction" }
+            ];
+            var dataObj = {};
+            for (var i = 0; i < fields.length; i++) {
+                var value = $("#" + fields[i].id).val().trim();
+                if (value === "") {
+                    alert(fields[i].label + " is Required Value");
+                    $("#" + fields[i].id).focus();
+                    return "";
+                }
+                dataObj[fields[i].key] = value;
+            }
+            return JSON.stringify(dataObj);
+        }
+
+        function checkEmployee() {
+            var idVal = $("#eId").val().trim();
+            if (idVal === "") {
+                return;
+            }
+            var getReq = createGET_BY_KEYRequest(connToken, empDBName, empRelName,
+                    JSON.stringify({ id: idVal }));
+ 
+            jQuery.ajaxSetup({async: false});
+            var resultObj = executeCommandAtGivenBaseUrl(getReq, jpdbBaseURL, jpdbIRL);
+            jQuery.ajaxSetup({async: true});
+ 
+            if (resultObj.status === 400) {
+                $("#eName, #eSalary, #eHra, #eDa, #eDeduction").prop("disabled", false);
+                $("#btnSave, #btnReset").prop("disabled", false);
+                $("#eName").focus();
+            } else if (resultObj.status === 200) {
+                fillData(resultObj);
+                $("#eId").prop("disabled", true);
+                $("#eName, #eSalary, #eHra, #eDa, #eDeduction").prop("disabled", false);
+                $("#btnChange, #btnReset").prop("disabled", false);
+                $("#eName").focus();
+            }
+        }
+ 
+        function saveEmployee() {
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+                return;
+            }
+            var putReq = createPUTRequest(connToken, jsonStr, empDBName, empRelName);
+ 
+            jQuery.ajaxSetup({async: false});
+            var resultObj = executeCommandAtGivenBaseUrl(putReq, jpdbBaseURL, jpdbIML);
+            jQuery.ajaxSetup({async: true});
+ 
+            alert(JSON.stringify(resultObj));
+            initForm();
+        }
+ 
+        function changeEmployee() {
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === "") {
+                return;
+            }
+            var updateReq = createUPDATERecordRequest(connToken, jsonStr, empDBName,
+                    empRelName, localStorage.getItem("recno"));
+ 
+            jQuery.ajaxSetup({async: false});
+            var resultObj = executeCommandAtGivenBaseUrl(updateReq, jpdbBaseURL, jpdbIML);
+            jQuery.ajaxSetup({async: true});
+ 
+            alert(JSON.stringify(resultObj));
+            initForm();
+        }
+        initForm();
+    </script>
+</body>
+</html>
+ 

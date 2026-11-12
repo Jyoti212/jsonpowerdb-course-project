@@ -1,0 +1,65 @@
+// how to put data directly without having to create relation or database, further we can see visualization, and this was the advantage of JsonDB over RDBMS
+//uses iml(index manipulation language)
+//PUT method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "PUT",
+    "dbName": "College",
+    "rel": "Student-Data",
+    "jsonStr": {
+        "rollNo": "101",
+        "name": "Riya Sharma",
+        "email": "riya.sharma@gmail.com"
+    }
+}
+
+
+//how to retrieve data, JsonDB is case sensitive and we can retrieve data using indexes so the same order as inserting of the data is not needed.
+//uses irl(index retrieval language)
+//GET method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET",
+    "dbName": "College",
+    "rel": "Student-Data",
+    "jsonStr": {
+        "name": "Riya Sharma"
+    }
+}
+
+//how to update data, we can update multiple records at the same time, here the record number is important
+//uses iml(index manipulation language)
+//UPDATE method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "UPDATE",
+    "dbName": "College",
+    "rel": "Student-Data",
+    "jsonStr": {
+        "2": {
+            "name": "Aarav Patil",
+            "email": "aarav.patil@gmail.com",
+            "mobile": 9876501234
+        },
+        "4": {
+            "name": "Neha Kulkarni",
+            "email": "neha.k@gmail.com",
+            "mobile": 9123456780
+        },
+        "7": {
+            "name": "Sana Sheikh",
+            "email": "sana.sheikh@gmail.com"
+        }
+    }
+}
+
+//how to remove / delete a record, here jsonStr is not used, and the record number will not be updated it stays the same as it was during creation
+//REMOVE method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "REMOVE",
+    "dbName": "College",
+    "rel": "Student-Data",
+    "record": 3,
+    "jsonStr": {}
+}

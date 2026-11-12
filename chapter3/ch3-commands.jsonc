@@ -1,0 +1,353 @@
+// PUT: inserts one record in the relation, JsonPowerDB creates structure itself
+//uses iml(index manipulation language)
+//PUT method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "PUT",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "jsonStr": {
+        "empCode": "E101",
+        "empName": "Ritika Joshi",
+        "department": "Finance",
+        "email": "ritika.joshi@gmail.com"
+    }
+}
+ 
+ 
+// PUT_ALL: inserts many records in a single request,(no need to write requests again and again) so jsonStr is an array [ ] of records instead of one object
+// colsAutoIndex = true (tells JsonPowerDB to index the columns automatically, so we can search on them later)
+// templateStr is optional and only used when a relation is first created (ignored afterwards), it is kept empty here so the columns are taken from the records themselves
+//uses iml(index manipulation language)
+//PUT_ALL method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "PUT_ALL",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "templateStr": {},
+    "colsAutoIndex": true,
+    "jsonStr": [
+        {
+            "empCode": "E102",
+            "empName": "Varun Deshmukh",
+            "department": "IT",
+            "email": "varun.d@gmail.com"
+        },
+        {
+            "empCode": "E103",
+            "empName": "Tanvi Bhosale",
+            "department": "HR",
+            "email": "tanvi.b@gmail.com"
+        },
+        {
+            "empCode": "E104",
+            "empName": "Kabir Malhotra",
+            "department": "Sales",
+            "email": "kabir.m@gmail.com"
+        }
+    ]
+}
+ 
+ 
+// UPDATE: changes existing records, the key of each block ("2", "4") is the RECORD NUMBER, so the record number is important
+// we can update multiple records in one request, and only the fields we send are changed (the third block changes only email)
+//uses iml(index manipulation language)
+//UPDATE method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "UPDATE",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "jsonStr": {
+        "2": {
+            "empName": "Varun Deshmukh",
+            "department": "Cloud Support",
+            "email": "varun.deshmukh@gmail.com"
+        },
+        "4": {
+            "empName": "Kabir Malhotra",
+            "department": "Marketing"
+        },
+        "3": {
+            "email": "tanvi.bhosale@gmail.com"
+        }
+    }
+}
+ 
+ 
+// REMOVE: deletes a record using its record number, so jsonStr is not needed (kept empty)
+// the record numbers of the other records do not change, they stay the same as they were during creation
+//uses iml(index manipulation language)
+//REMOVE method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "REMOVE",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "record": 4,
+    "jsonStr": {}
+}
+ 
+ 
+// GET_BY_KEY: searches using an INDEXED field (here empCode) and returns only the FIRST matching record, the data is case sensitive and the order of fields does not matter
+// createTime and updateTime = true returns the time the record was created and last updated along with the data
+//uses irl(index retrieval language)
+//GET_BY_KEY method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "dbName": "Company",
+    "cmd": "GET_BY_KEY",
+    "rel": "Employee-Data",
+    "createTime": true,
+    "updateTime": true,
+    "jsonStr": {
+        "empCode": "E103"
+    }
+}
+ 
+ 
+// GET_BY_RECORD: fetches a record using its RECORD NUMBER instead of a key, so no jsonStr is needed
+// createTime and updateTime = true returns the created and updated timestamps as well
+//uses irl(index retrieval language)
+//GET_BY_RECORD method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "dbName": "Company",
+    "cmd": "GET_BY_RECORD",
+    "rel": "Employee-Data",
+    "record": 2,
+    "createTime": true,
+    "updateTime": true
+}
+  
+ 
+// GET_ALL: retrieves MULTIPLE records from the relation page by page (pageNo and pageSize), default page size is 100
+// "cols" can be "*" for all columns or an array of column names, here only two columns are asked for
+//uses irl(index retrieval language)
+//GET_ALL method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET_ALL",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "cols": ["empName", "department"],
+    "pageNo": 1,
+    "pageSize": 5,
+    "createTime": true,
+    "updateTime": true
+}
+ 
+ 
+// FIND_ALL_RECORDS: retrieves ALL records that match the given value, unlike GET_BY_KEY it also works on NON-indexed columns
+// (FIND_RECORD is the other name of this command)
+//uses irl(index retrieval language)
+//FIND_ALL_RECORDS method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "FIND_ALL_RECORDS",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "jsonStr": {
+        "department": "IT"
+    },
+    "createTime": true,
+    "updateTime": true
+}
+ 
+ 
+// FIRST_RECORD: retrieves the first record of the relation, no key or record number is needed
+// if there is no record we get the BOF (beginning of file) message
+//uses irl(index retrieval language)
+//FIRST_RECORD method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "FIRST_RECORD",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "createTime": true,
+    "updateTime": true
+}
+ 
+ 
+// LAST_RECORD: retrieves the last record of the relation, no key or record number is needed
+// if there is no record we get the EOF (end of file) message
+//uses irl(index retrieval language)
+//LAST_RECORD method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "LAST_RECORD",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "createTime": true,
+    "updateTime": true
+}
+ 
+ 
+// NEXT_RECORD: gives the record that comes AFTER the given record number (here after record 2, so we get record 3)
+// when the last record is reached the message says EOF, this is useful for a "Next" button in a form
+//uses irl(index retrieval language)
+//NEXT_RECORD method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "NEXT_RECORD",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "record": 2,
+    "createTime": true,
+    "updateTime": true
+}
+ 
+ 
+// PREV_RECORD: gives the record that comes BEFORE the given record number (here before record 3, so we get record 2)
+// when the first record is reached the message says BOF, this is useful for a "Previous" button in a form
+//uses irl(index retrieval language)
+//PREV_RECORD method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "PREV_RECORD",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "record": 3,
+    "createTime": true,
+    "updateTime": true
+}
+ 
+ 
+// GET_RELATION_STATS: returns the total number of records and size of one relation (GET_RELATION_SIZE is the old deprecated name)
+// getDataSize = true also returns the size of the data
+//uses irl(index retrieval language)
+//GET_RELATION_STATS method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET_RELATION_STATS",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "getDataSize": true
+}
+ 
+ 
+// GET_ALL_DB: retrieves the names of all the databases of our account, only the token is needed
+//uses irl(index retrieval language)
+//GET_ALL_DB method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET_ALL_DB"
+}
+ 
+ 
+// GET_DB_STATS: retrieves details of all the relations inside one database (record count, size etc.)
+// it is the new name of GET_ALL_RELATIONS, the older GETALLREL and GET_ALL_RELATION names are deprecated
+//uses irl(index retrieval language)
+//GET_DB_STATS method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET_DB_STATS",
+    "dbName": "Company",
+    "getDataSize": true
+}
+ 
+ 
+// GET_USER_STATS: retrieves details of our own account like how many databases, relations, rows and indexes are used against the limit
+//uses irl(index retrieval language)
+//GET_USER_STATS method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET_USER_STATS",
+    "getDataSize": true
+}
+ 
+ 
+// GET_INDEXED_COL: retrieves the names (and data types) of all INDEXED columns of a relation, only these can be used with GET_BY_KEY
+//uses irl(index retrieval language)
+//GET_INDEXED_COL method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET_INDEXED_COL",
+    "dbName": "Company",
+    "rel": "Employee-Data"
+}
+ 
+ 
+// GET_NON_INDEXED_COL: retrieves the names of the columns that are NOT indexed
+//uses irl(index retrieval language)
+//GET_NON_INDEXED_COL method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET_NON_INDEXED_COL",
+    "dbName": "Company",
+    "rel": "Employee-Data"
+}
+ 
+ 
+// GET_ALL_COL: retrieves all the column names of a relation, both indexed and non-indexed
+//uses irl(index retrieval language)
+//GET_ALL_COL method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "GET_ALL_COL",
+    "dbName": "Company",
+    "rel": "Employee-Data"
+}
+ 
+ 
+// IS_COLUMN_INDEXED: checks whether one column is indexed, the answer in "data" is "true" (a non-indexed column gives status 400)
+//uses irl(index retrieval language)
+//IS_COLUMN_INDEXED method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "IS_COLUMN_INDEXED",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "colName": "department"
+}
+ 
+ 
+// IS_COLUMN_EXIST: checks whether a column exists in the relation at all, a missing column gives status 400 (COLUMN DOES NOT EXIST)
+//uses irl(index retrieval language)
+//IS_COLUMN_EXIST method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "IS_COLUMN_EXIST",
+    "dbName": "Company",
+    "rel": "Employee-Data",
+    "colName": "email"
+}
+ 
+ 
+// IS_RELATION_EXISTS: checks whether a relation exists in the database, only one relation can be checked at a time
+//uses irl(index retrieval language)
+//IS_RELATION_EXISTS method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "IS_RELATION_EXISTS",
+    "dbName": "Company",
+    "rel": "Employee-Data"
+}
+ 
+ 
+// IS_DATABASE_EXISTS: checks whether a database exists, only one database can be checked at a time
+//uses irl(index retrieval language)
+//IS_DATABASE_EXISTS method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "IS_DATABASE_EXISTS",
+    "dbName": "Company"
+}
+ 
+ 
+// SYNC_DB: returns only the changed (delta) rows of one or more relations since the given timestamp
+// timestamp 0 means "give everything from the beginning", the relation name and its timestamp go inside relTsJson
+//uses irl(index retrieval language)
+//SYNC_DB method
+{
+    "token": "90933410|-31949151356139044|90904440",
+    "cmd": "SYNC_DB",
+    "dbName": "Company",
+    "relTsJson": {
+        "Employee-Data": 0
+    },
+    "createTime": true,
+    "updateTime": true
+}
+ 
